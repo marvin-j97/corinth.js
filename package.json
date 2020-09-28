@@ -39,5 +39,8 @@
       "ts-node/register",
       "tsconfig-paths/register"
     ]
+  },
+  "dependencies": {
+    "haxan": "0.0.1-nightly.4"
   }
 }
