@@ -100,9 +100,7 @@ export class Queue<T = unknown> {
   }
 
   async purge() {
-    const res = await haxan<QueueStatResponse>(this.getUrl("/purge"))
-      .delete()
-      .send();
+    const res = await haxan(this.getUrl("/purge")).delete().send();
     if (res.ok) {
       return true;
     }
@@ -110,7 +108,7 @@ export class Queue<T = unknown> {
   }
 
   async delete() {
-    const res = await haxan<QueueStatResponse>(this.uri()).delete().send();
+    const res = await haxan(this.uri()).delete().send();
     if (res.ok) {
       return true;
     }
