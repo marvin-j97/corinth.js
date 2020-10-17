@@ -1,19 +1,8 @@
-import { CorinthError } from "./error";
+import { Corinth } from "corinth";
 import haxan from "haxan";
 
-export enum MessageState {
-  Pending,
-  Requeued,
-}
-
-export interface IMessage<T> {
-  id: string;
-  item: T;
-  num_requeues: number;
-  queued_at: number;
-  state: MessageState;
-  updated_at: number;
-}
+import { CorinthError } from "./error";
+import { IMessage, IResult } from "./types";
 
 export interface IQueueStat {
   name: string;
@@ -32,21 +21,23 @@ export interface IQueueStat {
   max_length: number;
 }
 
-interface IResult<T> {
-  status: number;
-  message?: string;
-  result?: T;
-  error?: boolean;
+interface IEnqueueResult<T> {
+  num_enqueued: number;
+  num_deduplicated: number;
+  items: Array<IMessage<T>>;
 }
 
-type QueueStatResponse = IResult<{ queue: IQueueStat }>;
+interface IDequeueResult<T> {
+  message: IMessage<T>;
+  ack: () => Promise<boolean>;
+}
 
 export class Queue<T = unknown> {
-  ip: string;
+  $root: Corinth;
   name: string;
 
-  constructor(ip: string, name: string) {
-    this.ip = ip;
+  constructor(root: Corinth, name: string) {
+    this.$root = root;
     this.name = name;
   }
 
@@ -55,7 +46,7 @@ export class Queue<T = unknown> {
   }
 
   uri(): string {
-    return `${this.ip}/queue/${this.name}`;
+    return `${this.$root.ip}/queue/${this.name}`;
   }
 
   getUrl(route: string): string {
@@ -72,15 +63,16 @@ export class Queue<T = unknown> {
     throw new CorinthError(res);
   }
 
-  async dequeue(amount = 1) {
-    const res = await haxan<{ result: { items: Array<IMessage<T>> } }>(
+  async dequeue(amount = 1): Promise<Array<IDequeueResult<T>>> {
+    const res = await haxan<IResult<{ items: Array<IMessage<T>> }>>(
       this.getUrl("/dequeue"),
     )
       .method(haxan.HTTPMethod.Post)
       .param("amount", amount)
       .send();
     if (res.ok) {
-      return res.data.result.items.map((item) => ({
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return res.data.result!.items.map((item) => ({
         message: item,
         ack: () => this.ack(item.id),
       }));
@@ -88,21 +80,25 @@ export class Queue<T = unknown> {
     throw new CorinthError(res);
   }
 
-  async enqueue(messages: Array<{ item: T; deduplication: string | null }>) {
-    const res = await haxan(this.getUrl("/enqueue"))
+  async enqueue(
+    messages: Array<{ item: T; deduplication: string | null }>,
+  ): Promise<IEnqueueResult<T>> {
+    const res = await haxan<IResult<IEnqueueResult<T>>>(this.getUrl("/enqueue"))
       .post({
         messages,
       })
       .send();
     if (res.ok) {
-      return true;
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return res.data.result!;
     }
     throw new CorinthError(res);
   }
 
   async stat(): Promise<IQueueStat> {
-    const res = await haxan<QueueStatResponse>(this.uri()).send();
+    const res = await haxan<IResult<{ queue: IQueueStat }>>(this.uri()).send();
     if (res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return res.data.result!.queue;
     }
     throw new CorinthError(res);
@@ -114,6 +110,10 @@ export class Queue<T = unknown> {
       return true;
     }
     throw new CorinthError(res);
+  }
+
+  async exists(): Promise<boolean> {
+    return this.$root.queueExists(this.name);
   }
 
   async delete(): Promise<true> {

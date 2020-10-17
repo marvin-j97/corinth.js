@@ -1,6 +1,9 @@
-import { ReadStream, createWriteStream } from "fs";
+import { createWriteStream, ReadStream } from "fs";
 
-export function downloadStream(source: ReadStream, output: string) {
+export function downloadStream(
+  source: ReadStream,
+  output: string,
+): Promise<void> {
   return new Promise((done, reject) => {
     const writer = createWriteStream(output);
     writer.on("error", (err) => {

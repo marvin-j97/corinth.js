@@ -1,41 +1,25 @@
-import { CorinthError } from "./error";
 import haxan from "haxan";
-import { Queue } from "./queue";
-import { platform } from "os";
-import { existsSync, ReadStream } from "fs";
-import { downloadStream } from "./download";
 
-export function resolveExe(base: string): string {
-  const plat = platform();
-  return plat === "win32" ? base + ".exe" : base;
-}
-
-interface IGithubAsset {
-  name: string;
-  browser_download_url: string;
-}
-
-function findAssetForOS(assets: IGithubAsset[]): IGithubAsset | null {
-  const plat = platform();
-  if (plat === "win32") {
-    return assets[assets.findIndex((a) => a.name.includes(".exe"))] || null;
-  }
-  if (plat === "linux") {
-    return assets[assets.findIndex((a) => a.name.includes("linux"))] || null;
-  }
-  if (plat === "darwin") {
-    return assets[assets.findIndex((a) => a.name.includes("darwin"))] || null;
-  }
-  throw new Error(`Unsupported platform: ${platform}`);
-}
+import { CorinthError } from "./error";
+import { IQueueStat, Queue } from "./queue";
+import { downloadCorinth, resolveExe } from "./release_downloader";
+import { IResult } from "./types";
 
 interface IQueueCreateOptions {
   requeue_time: number;
   deduplication_time: number;
   persistent: boolean;
   max_length: number;
-  dead_letter_queue_name: Queue;
+  dead_letter_queue: Queue;
   dead_letter_queue_threshold: number;
+}
+
+interface ICorinthStats {
+  name: "Corinth";
+  version: string;
+  uptime_ms: number;
+  uptime_secs: number;
+  started_at: number;
 }
 
 export class Corinth {
@@ -45,41 +29,36 @@ export class Corinth {
     this.ip = ip;
   }
 
+  async stat(): Promise<ICorinthStats> {
+    const request = haxan<IResult<ICorinthStats>>(this.ip).method(
+      haxan.HTTPMethod.Put,
+    );
+    const res = await request.send();
+    if (res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return res.data.result!;
+    }
+    throw new CorinthError(res);
+  }
+
   static async download(path = resolveExe("corinth")): Promise<boolean> {
-    if (existsSync(path)) {
-      return false;
-    }
+    return downloadCorinth(path);
+  }
 
-    const releasesResponse = await haxan<{ assets: IGithubAsset[] }[]>(
-      "https://api.github.com/repos/dotvirus/corinth/releases",
-    ).request();
-
-    if (releasesResponse.ok) {
-      const latest = releasesResponse.data[0];
-      const asset = findAssetForOS(latest.assets);
-      if (!asset) {
-        throw new Error("No asset for platform found");
-      }
-      console.log(`Fetching ${asset.browser_download_url}`);
-      const downloadResponse = await haxan<ReadStream>(
-        asset.browser_download_url,
-      )
-        .type(haxan.ResponseType.Stream)
-        .send();
-      if (downloadResponse.ok) {
-        console.log(`Downloading to ${path}`);
-        await downloadStream(downloadResponse.data, path);
-        return true;
-      } else {
-        throw new Error(`Error from GitHub API: ${downloadResponse.status}`);
-      }
-    } else {
-      throw new Error(`Error from GitHub API: ${releasesResponse.status}`);
+  async listQueues(): Promise<IQueueStat[]> {
+    const request = haxan<IResult<{ queues: { items: IQueueStat[] } }>>(
+      `${this.ip}/queues`,
+    );
+    const res = await request.send();
+    if (res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return res.data.result!.queues.items;
     }
+    throw new CorinthError(res);
   }
 
   async queueExists(name: string): Promise<boolean> {
-    const queue = new Queue(this.ip, name);
+    const queue = new Queue(this, name);
     try {
       await queue.stat();
       return true;
@@ -97,15 +76,20 @@ export class Corinth {
     name: string,
     opts?: Partial<IQueueCreateOptions>,
   ): Promise<Queue<T>> {
-    const queue = new Queue<T>(this.ip, name);
+    const queue = new Queue<T>(this, name);
     const query = opts || {};
     const request = haxan(queue.uri(), {
-      query: {
-        ...query,
-        dead_letter_queue_name:
-          query.dead_letter_queue_name?.getName() || undefined,
-      },
+      query,
     }).method(haxan.HTTPMethod.Put);
+
+    delete query.dead_letter_queue;
+    if (opts?.dead_letter_queue) {
+      request.param(
+        "query.dead_letter_queue_name",
+        opts.dead_letter_queue.getName(),
+      );
+    }
+
     const res = await request.send();
     if (res.ok) {
       return queue;
@@ -117,7 +101,7 @@ export class Corinth {
     name: string,
     opts?: Partial<IQueueCreateOptions>,
   ): Promise<Queue<T>> {
-    const queue = new Queue<T>(this.ip, name);
+    const queue = new Queue<T>(this, name);
     try {
       return await this.createQueue(name, opts);
     } catch (error) {
