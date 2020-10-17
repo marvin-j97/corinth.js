@@ -28,9 +28,18 @@ export interface IQueueStat {
   persistent: boolean;
   requeue_time: number;
   size: number;
+  dead_letter: { name: string; threshold: number } | null;
+  max_length: number;
 }
 
-type QueueStatResponse = { result: { queue: IQueueStat } };
+interface IResult<T> {
+  status: number;
+  message?: string;
+  result?: T;
+  error?: boolean;
+}
+
+type QueueStatResponse = IResult<{ queue: IQueueStat }>;
 
 export class Queue<T = unknown> {
   ip: string;
@@ -49,11 +58,11 @@ export class Queue<T = unknown> {
     return `${this.ip}/queue/${this.name}`;
   }
 
-  getUrl(route: string) {
+  getUrl(route: string): string {
     return this.uri() + route;
   }
 
-  async ack(id: string) {
+  async ack(id: string): Promise<true> {
     const res = await haxan(this.getUrl(`/${id}/ack`))
       .method(haxan.HTTPMethod.Post)
       .send();
@@ -91,15 +100,15 @@ export class Queue<T = unknown> {
     throw new CorinthError(res);
   }
 
-  async stat() {
+  async stat(): Promise<IQueueStat> {
     const res = await haxan<QueueStatResponse>(this.uri()).send();
     if (res.ok) {
-      return res.data.result.queue;
+      return res.data.result!.queue;
     }
     throw new CorinthError(res);
   }
 
-  async purge() {
+  async purge(): Promise<true> {
     const res = await haxan(this.getUrl("/purge")).delete().send();
     if (res.ok) {
       return true;
@@ -107,7 +116,7 @@ export class Queue<T = unknown> {
     throw new CorinthError(res);
   }
 
-  async delete() {
+  async delete(): Promise<true> {
     const res = await haxan(this.uri()).delete().send();
     if (res.ok) {
       return true;

@@ -40,6 +40,15 @@ function findAssetForOS(assets: IGithubAsset[]): IGithubAsset | null {
   throw new Error(`Unsupported platform: ${platform}`);
 }
 
+interface IQueueCreateOptions {
+  requeue_time: number;
+  deduplication_time: number;
+  persistent: boolean;
+  max_length: number;
+  dead_letter_queue_name: Queue;
+  dead_letter_queue_threshold: number;
+}
+
 export class Corinth {
   ip: string;
 
@@ -80,7 +89,7 @@ export class Corinth {
     }
   }
 
-  async queueExists(name: string) {
+  async queueExists(name: string): Promise<boolean> {
     const queue = new Queue(this.ip, name);
     try {
       await queue.stat();
@@ -95,9 +104,19 @@ export class Corinth {
     }
   }
 
-  async createQueue<T = unknown>(name: string) {
+  async createQueue<T = unknown>(
+    name: string,
+    opts?: Partial<IQueueCreateOptions>,
+  ): Promise<Queue<T>> {
     const queue = new Queue<T>(this.ip, name);
-    const request = haxan(queue.uri()).method(haxan.HTTPMethod.Put);
+    const query = opts || {};
+    const request = haxan(queue.uri(), {
+      query: {
+        ...query,
+        dead_letter_queue_name:
+          query.dead_letter_queue_name?.getName() || undefined,
+      },
+    }).method(haxan.HTTPMethod.Put);
     const res = await request.send();
     if (res.ok) {
       return queue;
@@ -105,10 +124,13 @@ export class Corinth {
     throw new CorinthError(res);
   }
 
-  async ensureQueue<T = unknown>(name: string) {
+  async ensureQueue<T = unknown>(
+    name: string,
+    opts?: Partial<IQueueCreateOptions>,
+  ): Promise<Queue<T>> {
     const queue = new Queue<T>(this.ip, name);
     try {
-      return await this.createQueue(name);
+      return await this.createQueue(name, opts);
     } catch (error) {
       if (error.isCorinthError) {
         if (error.res.status === 409) {
