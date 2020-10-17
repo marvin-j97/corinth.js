@@ -5,7 +5,7 @@ import { platform } from "os";
 import { existsSync, ReadStream } from "fs";
 import { downloadStream } from "./download";
 
-function resolveExe(base: string): string {
+export function resolveExe(base: string): string {
   const plat = platform();
   return plat === "win32" ? base + ".exe" : base;
 }
