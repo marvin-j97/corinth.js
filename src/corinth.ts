@@ -2,19 +2,8 @@ import { CorinthError } from "./error";
 import haxan from "haxan";
 import { Queue } from "./queue";
 import { platform } from "os";
-import { createWriteStream, existsSync, ReadStream } from "fs";
-
-function downloadStream(source: ReadStream, output: string) {
-  return new Promise((done, reject) => {
-    const writer = createWriteStream(output);
-    writer.on("error", (err) => {
-      console.error(err);
-      reject();
-    });
-    writer.on("close", done);
-    source.pipe(writer);
-  });
-}
+import { existsSync, ReadStream } from "fs";
+import { downloadStream } from "./download";
 
 function resolveExe(base: string): string {
   const plat = platform();

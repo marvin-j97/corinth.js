@@ -1,7 +1,7 @@
 import { CorinthError } from "./error";
 import haxan from "haxan";
 
-enum MessageState {
+export enum MessageState {
   Pending,
   Requeued,
 }
