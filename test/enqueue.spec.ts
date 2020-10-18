@@ -7,11 +7,14 @@ before(setupCorinth);
 
 const corinth = new Corinth(getIp());
 
-ava.serial("Peek empty queue", async (t) => {
-  const queue = await corinth.createQueue<{ name: string }>("queue0");
+ava.serial("Enqueue item", async (t) => {
+  const queue = await corinth.createQueue<{ name: string }>("queue0", {
+    persistent: false,
+  });
   {
-    const { size } = await queue.stat();
+    const { size, persistent } = await queue.stat();
     t.is(size, 0);
+    t.assert(!persistent);
   }
   const result = await queue.enqueueOne({
     name: "test",

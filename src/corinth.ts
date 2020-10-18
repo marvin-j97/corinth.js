@@ -29,6 +29,11 @@ export class Corinth {
     this.ip = ip;
   }
 
+  async version(): Promise<string> {
+    const { version } = await this.stat();
+    return version;
+  }
+
   async stat(): Promise<ICorinthStats> {
     const request = haxan<IResult<{ info: ICorinthStats }>>(this.ip);
     const res = await request.send();

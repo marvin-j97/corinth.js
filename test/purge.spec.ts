@@ -1,6 +1,5 @@
 import ava, { before } from "ava";
 import { Corinth } from "../src/corinth";
-import { CorinthError } from "../src/error";
 import { Queue } from "../src/queue";
 import { getIp } from "./common";
 import { setupCorinth } from "./run_corinth";
@@ -18,18 +17,20 @@ ava.serial("Create queue", async (t) => {
     persistent: false,
   });
   t.assert(await queue.exists());
+  await queue.enqueueOne({
+    name: "test",
+  });
+  {
+    const { size } = await queue.stat();
+    t.is(size, 1);
+  }
 });
 
-ava.serial("Conflict create queue", async (t) => {
-  try {
-    t.assert(await queue.exists());
-    await corinth.createQueue(queueName, {
-      persistent: false,
-    });
-    t.fail();
-  } catch (error) {
-    const err = <CorinthError>error;
-    t.assert(err.isCorinthError);
-    t.is(err.res.status, 409);
+ava.serial("Purge queue", async (t) => {
+  await queue.purge();
+  t.assert(await queue.exists());
+  {
+    const { size } = await queue.stat();
+    t.is(size, 0);
   }
 });

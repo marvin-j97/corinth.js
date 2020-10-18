@@ -18,14 +18,16 @@ function cleanup() {
 before(cleanup);
 after(cleanup);
 
-ava.serial.skip("Download for OS", async (t) => {
+ava.serial("Download for OS", async (t) => {
   t.assert(!existsSync(exeName));
-  await Corinth.download();
+  t.assert(await Corinth.download());
   t.assert(existsSync(exeName));
+  t.assert(!(await Corinth.download()));
 });
 
-ava.serial.skip("Download with custom name", async (t) => {
-  t.assert(custom);
-  await Corinth.download(custom);
-  t.assert(custom);
+ava.serial("Download with custom name", async (t) => {
+  t.assert(!existsSync(custom));
+  t.assert(await Corinth.download(custom));
+  t.assert(existsSync(custom));
+  t.assert(!(await Corinth.download(custom)));
 });

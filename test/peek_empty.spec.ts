@@ -8,7 +8,9 @@ before(setupCorinth);
 const corinth = new Corinth(getIp());
 
 ava.serial("Peek empty queue", async (t) => {
-  const queue = await corinth.createQueue("queue0");
+  const queue = await corinth.createQueue("queue0", {
+    persistent: false,
+  });
   const peeked = await queue.peek();
   t.is(peeked, null);
 });

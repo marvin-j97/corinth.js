@@ -38,8 +38,8 @@ interface IEnqueueItem<T> {
 }
 
 export class Queue<T = unknown> {
-  $root: Corinth;
-  name: string;
+  protected $root: Corinth;
+  protected name: string;
 
   constructor(root: Corinth, name: string) {
     this.$root = root;
@@ -79,18 +79,29 @@ export class Queue<T = unknown> {
     throw new CorinthError(res);
   }
 
-  async dequeue(amount = 1): Promise<Array<IDequeueResult<T>>> {
-    const res = await haxan<IResult<{ items: Array<IMessage<T>> }>>(
+  async dequeue(ack = false, amount = 1): Promise<Array<IDequeueResult<T>>> {
+    const request = haxan<IResult<{ items: Array<IMessage<T>> }>>(
       this.getUrl("/dequeue"),
     )
       .method(haxan.HTTPMethod.Post)
-      .param("amount", amount)
-      .send();
+      .param("amount", amount);
+
+    if (ack) {
+      request.param("ack", "true");
+    }
+
+    const res = await request.send();
     if (res.ok) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return res.data.result!.items.map((item) => ({
         message: item,
-        ack: () => this.ack(item.id),
+        ack: async () => {
+          if (ack) {
+            return true;
+          } else {
+            return this.ack(item.id);
+          }
+        },
       }));
     }
     throw new CorinthError(res);
