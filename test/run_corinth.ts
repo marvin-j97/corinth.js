@@ -2,6 +2,7 @@ import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import debug from "debug";
 import { chmodSync, existsSync, rmdirSync } from "fs";
 import { downloadCorinth, resolveExe } from "../src/release_downloader";
+import { sleep } from "./common";
 
 const PORT = 44444;
 
@@ -35,6 +36,7 @@ export async function spawnCorinth(port = PORT, interval: number = 0) {
 export const setupCorinth = async () => {
   await spawnCorinth(PORT);
   console.log("Spawned corinth");
+  await sleep(250);
 };
 
 process.on("exit", () => {
