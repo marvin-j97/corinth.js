@@ -13,7 +13,7 @@ export async function spawnCorinth(port = PORT, interval: number = 0) {
   const exeName = resolveExe("testcorinth");
   if (!existsSync(exeName)) {
     await downloadCorinth(exeName);
-    chmodSync(exeName, 0755);
+    chmodSync(exeName, "755");
   }
   rmdirSync(".corinth", { recursive: true });
   console.log("Setup corinth successfully");
