@@ -1,6 +1,9 @@
-import ava from "ava";
+import ava, { before } from "ava";
 import { Corinth } from "../src/corinth";
 import { getIp } from "./common";
+import { setupCorinth } from "./run_corinth";
+
+before(setupCorinth);
 
 const corinth = new Corinth(getIp());
 

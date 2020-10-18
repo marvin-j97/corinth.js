@@ -32,6 +32,11 @@ interface IDequeueResult<T> {
   ack: () => Promise<boolean>;
 }
 
+interface IEnqueueItem<T> {
+  item: T;
+  deduplication: string | null;
+}
+
 export class Queue<T = unknown> {
   $root: Corinth;
   name: string;
@@ -63,6 +68,17 @@ export class Queue<T = unknown> {
     throw new CorinthError(res);
   }
 
+  async peek(): Promise<IMessage<T> | null> {
+    const res = await haxan<IResult<{ item: IMessage<T> | null | undefined }>>(
+      this.getUrl("/peek"),
+    ).send();
+    if (res.ok) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return res.data.result!.item || null;
+    }
+    throw new CorinthError(res);
+  }
+
   async dequeue(amount = 1): Promise<Array<IDequeueResult<T>>> {
     const res = await haxan<IResult<{ items: Array<IMessage<T>> }>>(
       this.getUrl("/dequeue"),
@@ -80,9 +96,14 @@ export class Queue<T = unknown> {
     throw new CorinthError(res);
   }
 
-  async enqueue(
-    messages: Array<{ item: T; deduplication: string | null }>,
+  async enqueueOne(
+    item: T,
+    deduplication: string | null = null,
   ): Promise<IEnqueueResult<T>> {
+    return this.enqueue([{ item, deduplication }]);
+  }
+
+  async enqueue(messages: Array<IEnqueueItem<T>>): Promise<IEnqueueResult<T>> {
     const res = await haxan<IResult<IEnqueueResult<T>>>(this.getUrl("/enqueue"))
       .post({
         messages,

@@ -47,7 +47,6 @@
   },
   "dependencies": {
     "debug": "^4.2.0",
-    "execa": "^4.0.3",
     "haxan": "^0.0.1"
   }
 }

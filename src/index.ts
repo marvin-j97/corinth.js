@@ -1,8 +1,6 @@
 // import { Corinth } from "./corinth";
 // // import { Queue } from "./queue";
 
-import { Corinth } from "./corinth";
-
 // const corinth = new Corinth("http://localhost:44444");
 
 // // interface ITestItem {
@@ -54,11 +52,6 @@ import { Corinth } from "./corinth";
 //   // await result[0].ack();
 //   // console.log(await queue.stat());
 // })();
-
-(async () => {
-  await Corinth.download();
-  process.exit(0);
-})();
 
 export * from "./corinth";
 export * from "./error";

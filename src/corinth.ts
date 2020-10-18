@@ -30,13 +30,11 @@ export class Corinth {
   }
 
   async stat(): Promise<ICorinthStats> {
-    const request = haxan<IResult<ICorinthStats>>(this.ip).method(
-      haxan.HTTPMethod.Put,
-    );
+    const request = haxan<IResult<{ info: ICorinthStats }>>(this.ip);
     const res = await request.send();
     if (res.ok) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return res.data.result!;
+      return res.data.result!.info;
     }
     throw new CorinthError(res);
   }
@@ -72,7 +70,7 @@ export class Corinth {
     }
   }
 
-  async createQueue<T = unknown>(
+  async createQueue<T extends Record<string, unknown>>(
     name: string,
     opts?: Partial<IQueueCreateOptions>,
   ): Promise<Queue<T>> {
@@ -97,7 +95,7 @@ export class Corinth {
     throw new CorinthError(res);
   }
 
-  async ensureQueue<T = unknown>(
+  async ensureQueue<T extends Record<string, unknown>>(
     name: string,
     opts?: Partial<IQueueCreateOptions>,
   ): Promise<Queue<T>> {
