@@ -21,20 +21,26 @@ export interface IQueueStat {
   max_length: number;
 }
 
-interface IEnqueueResult<T> {
+export interface IEnqueueResult<T> {
   num_enqueued: number;
   num_deduplicated: number;
   items: Array<IMessage<T>>;
 }
 
-interface IDequeueResult<T> {
+export interface IDequeueResult<T> {
   message: IMessage<T>;
   ack: () => Promise<boolean>;
 }
 
-interface IEnqueueItem<T> {
+export interface IEnqueueItem<T> {
   item: T;
   deduplication: string | null;
+}
+
+export interface IQueuePatchOptions {
+  requeue_time: number;
+  deduplication_time: number;
+  max_length: number;
 }
 
 export class Queue<T = unknown> {
@@ -130,6 +136,7 @@ export class Queue<T = unknown> {
   async stat(): Promise<IQueueStat> {
     const res = await haxan<IResult<{ queue: IQueueStat }>>(this.uri()).send();
     if (res.ok) {
+      console.log(res.data);
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return res.data.result!.queue;
     }
@@ -138,6 +145,18 @@ export class Queue<T = unknown> {
 
   async purge(): Promise<true> {
     const res = await haxan(this.getUrl("/purge")).delete().send();
+    if (res.ok) {
+      return true;
+    }
+    throw new CorinthError(res);
+  }
+
+  async edit(opts: Partial<IQueuePatchOptions>): Promise<true> {
+    return this.update(opts);
+  }
+
+  async update(opts: Partial<IQueuePatchOptions>): Promise<true> {
+    const res = await haxan(this.uri()).patch(opts).send();
     if (res.ok) {
       return true;
     }
