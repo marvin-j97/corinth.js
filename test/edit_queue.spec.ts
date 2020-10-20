@@ -22,7 +22,7 @@ ava.serial("Create queue", async (t) => {
 });
 
 ava.serial("Edit queue", async (t) => {
-  await queue.update({
+  await queue.edit({
     requeue_time: 150,
   });
   const { requeue_time } = await queue.stat();
