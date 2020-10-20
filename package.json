@@ -8,13 +8,21 @@
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --fix --ext .ts",
     "test": "ava test/**/*.spec.ts -c 1",
-    "coverage": "nyc npm test"
+    "coverage": "nyc npm test",
+    "postcoverage": "nyc report --reporter=json"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/dotvirus/typescript-eslint-ava-template.git"
   },
-  "keywords": [],
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "message queue",
+    "wrapper",
+    "api"
+  ],
   "author": "dotvirus",
   "license": "ISC",
   "bugs": {
