@@ -23,7 +23,7 @@ function findAssetForOS(assets: IGithubAsset[]): IGithubAsset | null {
     return assets[assets.findIndex((a) => a.name.includes("linux"))] || null;
   }
   if (plat === "darwin") {
-    return assets[assets.findIndex((a) => a.name.includes("darwin"))] || null;
+    return assets[assets.findIndex((a) => a.name.includes("mac"))] || null;
   }
   throw new Error(`Unsupported platform: ${platform}`);
 }
