@@ -6,11 +6,11 @@ import { setupCorinth } from "./run_corinth";
 before(setupCorinth);
 
 const corinth = new Corinth(getIp());
+const queueName = "enqueue_queue";
+const queue = corinth.defineQueue<{ name: string }>(queueName);
 
 ava.serial("Enqueue item", async (t) => {
-  const queue = await corinth.createQueue<{ name: string }>("queue0", {
-    persistent: false,
-  });
+  await queue.create({ persistent: false });
   {
     const { size, persistent } = await queue.stat();
     t.is(size, 0);

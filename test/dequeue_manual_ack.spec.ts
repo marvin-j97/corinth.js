@@ -1,16 +1,16 @@
 import ava, { before } from "ava";
 import { Corinth } from "../src/corinth";
-import { Queue } from "../src/queue";
 import { getIp } from "./common";
 import { setupCorinth } from "./run_corinth";
 
 before(setupCorinth);
 
 const corinth = new Corinth(getIp());
-const queue = new Queue(corinth, "queue0");
+const queueName = "dequeue_manual_ack";
+const queue = corinth.defineQueue(queueName);
 
 ava.serial("Enqueue to queue", async (t) => {
-  await corinth.ensureQueue(queue.getName(), {
+  await queue.ensure({
     persistent: false,
   });
   {
@@ -28,7 +28,7 @@ ava.serial("Enqueue to queue", async (t) => {
   }
 });
 
-ava.serial("Dequeue with auto ack", async (t) => {
+ava.serial("Dequeue with manual ack", async (t) => {
   const result = await queue.dequeue();
   t.deepEqual(result[0].message.item, {
     name: "test",

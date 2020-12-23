@@ -1,6 +1,5 @@
 import ava, { before } from "ava";
 import { Corinth } from "../src/corinth";
-import { Queue } from "../src/queue";
 import { getIp } from "./common";
 import { setupCorinth } from "./run_corinth";
 
@@ -8,12 +7,12 @@ before(setupCorinth);
 
 const corinth = new Corinth(getIp());
 
-const queueName = "my_queue";
-const queue = new Queue(corinth, queueName);
+const queueName = "delete_queue";
+const queue = corinth.defineQueue(queueName);
 
 ava.serial("Create queue", async (t) => {
   t.assert(!(await queue.exists()));
-  await corinth.createQueue(queueName, {
+  await queue.create({
     persistent: false,
   });
   t.assert(await queue.exists());

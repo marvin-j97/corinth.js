@@ -10,7 +10,8 @@ const corinth = new Corinth(getIp());
 ava.serial("List queues", async (t) => {
   const names = ["queue0", "queue1", "queue2", "queue3", "queue4"];
   for (const name of names) {
-    await corinth.createQueue(name, {
+    const queue = corinth.defineQueue(name);
+    await queue.create({
       persistent: false,
     });
   }

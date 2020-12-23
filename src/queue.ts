@@ -4,6 +4,20 @@ import haxan from "haxan";
 import { CorinthError } from "./error";
 import { IMessage, IResult } from "./types";
 
+interface IQueueDequeueOptions {
+  ack: boolean;
+  amount: number;
+}
+
+interface IQueueCreateOptions {
+  requeue_time: number;
+  deduplication_time: number;
+  persistent: boolean;
+  max_length: number;
+  dead_letter_queue: Queue;
+  dead_letter_queue_threshold: number;
+}
+
 export interface IQueueStat {
   name: string;
   created_at: number;
@@ -57,7 +71,7 @@ export class Queue<T = unknown> {
   }
 
   uri(): string {
-    return `${this.$root.ip}/queue/${this.name}`;
+    return `${this.$root.getIp()}/queue/${this.name}`;
   }
 
   getUrl(route: string): string {
@@ -85,7 +99,10 @@ export class Queue<T = unknown> {
     throw new CorinthError(res);
   }
 
-  async dequeue(ack = false, amount = 1): Promise<Array<IDequeueResult<T>>> {
+  async dequeue({
+    ack = false,
+    amount = 1,
+  }: Partial<IQueueDequeueOptions> = {}): Promise<Array<IDequeueResult<T>>> {
     const request = haxan<IResult<{ items: Array<IMessage<T>> }>>(
       this.getUrl("/dequeue"),
     )
@@ -164,7 +181,17 @@ export class Queue<T = unknown> {
   }
 
   async exists(): Promise<boolean> {
-    return this.$root.queueExists(this.name);
+    try {
+      await this.stat();
+      return true;
+    } catch (error) {
+      if (error.isCorinthError) {
+        if (error.res.status === 404) {
+          return false;
+        }
+      }
+      throw error;
+    }
   }
 
   async delete(): Promise<true> {
@@ -173,5 +200,55 @@ export class Queue<T = unknown> {
       return true;
     }
     throw new CorinthError(res);
+  }
+
+  async create(opts?: Partial<IQueueCreateOptions>): Promise<true> {
+    const request = haxan(this.uri()).method(haxan.HTTPMethod.Put);
+
+    if (opts?.dead_letter_queue !== undefined) {
+      request.param("dead_letter_queue_name", opts.dead_letter_queue.getName());
+    }
+
+    if (opts?.dead_letter_queue_threshold !== undefined) {
+      request.param(
+        "dead_letter_queue_threshold",
+        String(opts.dead_letter_queue_threshold),
+      );
+    }
+
+    if (opts?.deduplication_time !== undefined) {
+      request.param("deduplication_time", String(opts.deduplication_time));
+    }
+
+    if (opts?.max_length !== undefined) {
+      request.param("max_length", String(opts.max_length));
+    }
+
+    if (opts?.persistent !== undefined) {
+      request.param("persistent", String(opts.persistent));
+    }
+
+    if (opts?.requeue_time !== undefined) {
+      request.param("requeue_time", String(opts.requeue_time));
+    }
+
+    const res = await request.send();
+    if (res.ok) {
+      return true;
+    }
+    throw new CorinthError(res);
+  }
+
+  async ensure(opts?: Partial<IQueueCreateOptions>): Promise<true> {
+    try {
+      return this.create(opts);
+    } catch (error) {
+      if (error.isCorinthError) {
+        if (error.res.status === 409) {
+          return true;
+        }
+      }
+      throw error;
+    }
   }
 }
