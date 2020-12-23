@@ -57,6 +57,6 @@
   },
   "dependencies": {
     "debug": "^4.2.0",
-    "haxan": "^0.0.1"
+    "haxan": "^0.1.0"
   }
 }
