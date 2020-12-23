@@ -35,10 +35,10 @@
     "@types/semver": "^7.3.4",
     "@typescript-eslint/eslint-plugin": "^4.4.1",
     "@typescript-eslint/parser": "^4.4.1",
-    "ava": "3.12.1",
+    "ava": "3.14.0",
     "concurrently": "^5.3.0",
     "eslint": "^7.11.0",
-    "eslint-config-prettier": "^6.13.0",
+    "eslint-config-prettier": "^7.1.0",
     "eslint-plugin-simple-import-sort": "^5.0.3",
     "nyc": "^15.1.0",
     "semver": "^7.3.2",
@@ -57,6 +57,6 @@
   },
   "dependencies": {
     "debug": "^4.2.0",
-    "haxan": "^0.0.1"
+    "haxan": "^0.1.0"
   }
 }
