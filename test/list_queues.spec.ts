@@ -16,6 +16,5 @@ ava.serial("List queues", async (t) => {
     });
   }
   const queues = await corinth.listQueues();
-  t.is(queues.length, names.length);
   t.deepEqual(names.slice().sort(), queues.map((x) => x.name).sort());
 });

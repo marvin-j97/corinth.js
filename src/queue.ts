@@ -159,6 +159,11 @@ export class Queue<T = unknown> {
     throw new CorinthError(res);
   }
 
+  async size(): Promise<number> {
+    const { size } = await this.stat();
+    return size;
+  }
+
   async purge(): Promise<true> {
     const res = await haxan(this.getUrl("/purge")).delete().send();
     if (res.ok) {
@@ -240,7 +245,7 @@ export class Queue<T = unknown> {
 
   async ensure(opts?: Partial<IQueueCreateOptions>): Promise<true> {
     try {
-      return this.create(opts);
+      return await this.create(opts);
     } catch (error) {
       if (error.isCorinthError) {
         if (error.res.status === 409) {
