@@ -72,7 +72,7 @@ export class Corinth {
     return queue.exists();
   }
 
-  defineQueue<T>(name: string) {
+  defineQueue<T>(name: string): Queue {
     return new Queue<T>(this, name);
   }
 }

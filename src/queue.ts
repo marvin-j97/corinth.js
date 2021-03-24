@@ -1,6 +1,6 @@
-import { Corinth } from "./corinth";
 import haxan from "haxan";
 
+import { Corinth } from "./corinth";
 import { CorinthError } from "./error";
 import { IMessage, IResult } from "./types";
 
