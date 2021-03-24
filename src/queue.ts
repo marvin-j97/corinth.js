@@ -1,4 +1,4 @@
-import { Corinth } from "corinth";
+import { Corinth } from "./corinth";
 import haxan from "haxan";
 
 import { CorinthError } from "./error";
