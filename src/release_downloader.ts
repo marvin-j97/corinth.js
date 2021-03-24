@@ -45,12 +45,12 @@ export async function downloadCorinth(
     if (!asset) {
       throw new Error("No asset for platform found");
     }
-    console.log(`Fetching ${asset.browser_download_url}`);
+    console.error(`Fetching ${asset.browser_download_url}`);
     const downloadResponse = await haxan<ReadStream>(asset.browser_download_url)
       .type(haxan.ResponseType.Stream)
       .send();
     if (downloadResponse.ok) {
-      console.log(`Downloading to ${path}`);
+      console.error(`Downloading to ${path}`);
       await downloadStream(downloadResponse.data, path);
       return true;
     } else {

@@ -153,7 +153,6 @@ export class Queue<T = unknown> {
   async stat(): Promise<IQueueStat> {
     const res = await haxan<IResult<{ queue: IQueueStat }>>(this.uri()).send();
     if (res.ok) {
-      console.log(res.data);
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return res.data.result!.queue;
     }

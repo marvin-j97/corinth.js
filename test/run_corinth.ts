@@ -17,7 +17,7 @@ export async function spawnCorinth(port = PORT, interval: number = 0) {
     chmodSync(exeName, "755");
   }
   rmdirSync(".corinth", { recursive: true });
-  console.log("Setup corinth successfully");
+  console.error("Setup corinth successfully");
 
   const path = `./${exeName}`;
   const proc = spawn(path, {
@@ -35,11 +35,11 @@ export async function spawnCorinth(port = PORT, interval: number = 0) {
 
 export const setupCorinth = async () => {
   await spawnCorinth(PORT);
-  console.log("Spawned corinth");
+  console.error("Spawned corinth");
   await sleep(250);
 };
 
 process.on("exit", () => {
-  console.log("Killing corinth");
+  console.error("Killing corinth");
   corinth.kill();
 });
