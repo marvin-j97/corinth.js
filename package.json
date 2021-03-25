@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dotvirus/corinth.js.git"
+    "url": "git+https://github.com/marvin-j97/corinth.js.git"
   },
   "files": [
     "dist"
@@ -23,12 +23,12 @@
     "wrapper",
     "api"
   ],
-  "author": "dotvirus",
+  "author": "marvin-j97",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/dotvirus/corinth.js/issues"
+    "url": "https://github.com/marvin-j97/corinth.js/issues"
   },
-  "homepage": "https://github.com/dotvirus/corinth.js",
+  "homepage": "https://github.com/marvin-j97/corinth.js",
   "devDependencies": {
     "@types/debug": "^4.1.5",
     "@types/node": "^14.11.10",
