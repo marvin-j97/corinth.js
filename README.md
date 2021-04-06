@@ -23,19 +23,19 @@ interface IItem {
 const myQueue = corinth.defineQueue<IItem>("myQueue");
 
 // Ensure queue exists
-await transcodeQueue.ensure();
+await myQueue.ensure();
 
 // Enqueue an item
-await transcodeQueue.enqueueOne({ id: "abc" });
+await myQueue.enqueueOne({ id: "abc" });
 
 // Get one or more items from the queue
 // Gets one by default
-const result = await transcodeQueue.dequeue();
-const item = result[0];
+const result = await myQueue.dequeue();
+const message = result[0];
 
 // Process your item
-await processItem(item);
+await processItem(message.item);
 
 // Acknowledge success
-await item.ack();
+await message.ack();
 ```
