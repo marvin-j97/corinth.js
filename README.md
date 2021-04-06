@@ -19,7 +19,7 @@ interface IItem {
 }
 
 // myQueue contains IItem objects
-// This does not create the queue, just define a model to interact with
+// This does not create the queue, just defines a model to interact with
 const myQueue = corinth.defineQueue<IItem>("myQueue");
 
 // Ensure queue exists
