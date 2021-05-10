@@ -1,6 +1,6 @@
 {
   "name": "corinth.js",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Node.js wrapper for Corinth, a Rust message queue server.",
   "main": "dist/index.js",
   "scripts": {

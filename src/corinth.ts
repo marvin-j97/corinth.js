@@ -2,7 +2,6 @@ import haxan from "haxan";
 
 import { CorinthError } from "./error";
 import { IQueueStat, Queue } from "./queue";
-import { downloadCorinth, resolveExe } from "./release_downloader";
 import { IResult } from "./types";
 
 interface ICorinthStats {
@@ -49,10 +48,6 @@ export class Corinth {
       return res.data.result!.info;
     }
     throw new CorinthError(res);
-  }
-
-  static async download(path = resolveExe("corinth")): Promise<boolean> {
-    return downloadCorinth(path);
   }
 
   async listQueues(): Promise<IQueueStat[]> {

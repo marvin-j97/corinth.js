@@ -1,7 +1,7 @@
 import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 import debug from "debug";
 import { chmodSync, existsSync, rmdirSync } from "fs";
-import { downloadCorinth, resolveExe } from "../src/release_downloader";
+import { downloadCorinth, resolveExe } from "./util/release_downloader";
 import { PORT, sleep } from "./common";
 
 const corinthLog = debug("corinth");
