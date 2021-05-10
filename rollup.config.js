@@ -8,7 +8,12 @@ const config = {
     format: "umd",
     name: "Corinth",
   },
-  plugins: [commonjs(), resolve()],
+  plugins: [
+    commonjs(),
+    resolve({
+      only: ["haxan"],
+    }),
+  ],
 };
 
 export default config;
