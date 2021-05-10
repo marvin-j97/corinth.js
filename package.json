@@ -1,10 +1,20 @@
 {
   "name": "corinth.js",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Node.js wrapper for Corinth, a Rust message queue server.",
-  "main": "dist/index.js",
+  "main": "dist/corinthjs.min.js",
+  "typings": "index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "pretranspile": "rm -rf typings",
+    "transpile": "tsc -p build.tsconfig.json",
+    "posttranspile": "npm run build:typings",
+    "build:umd": "rollup --config",
+    "build:typings": "rollup --config rollup.dts.config.js",
+    "babel": "babel dist/corinthjs.js -o dist/corinthjs.es5.js",
+    "build": "npm run transpile && npm run build:umd && npm run babel && npm run minify",
+    "minify": "uglifyjs dist/corinthjs.es5.js --compress --mangle > dist/corinthjs.min.js",
+    "prebuild": "rm -rf dist && rm -rf build",
+    "postbuild": "rm -rf build",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --fix --ext .ts",
     "test": "ava test/**/*.spec.ts -c 1",
@@ -16,7 +26,8 @@
     "url": "git+https://github.com/marvin-j97/corinth.js.git"
   },
   "files": [
-    "dist"
+    "dist/corinthjs.min.js",
+    "index.d.ts"
   ],
   "keywords": [
     "message queue",
@@ -30,6 +41,9 @@
   },
   "homepage": "https://github.com/marvin-j97/corinth.js",
   "devDependencies": {
+    "@babel/cli": "^7.13.16",
+    "@babel/core": "^7.14.0",
+    "@babel/preset-env": "^7.14.1",
     "@types/debug": "^4.1.5",
     "@types/node": "^15.0.2",
     "@types/semver": "^7.3.4",
@@ -41,10 +55,15 @@
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-simple-import-sort": "^5.0.3",
     "nyc": "^15.1.0",
+    "rollup": "^2.47.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-dts": "^3.0.1",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "semver": "^7.3.2",
     "ts-node": "^9.0.0",
     "tsconfig-paths": "^3.9.0",
-    "typescript": "^4.0.3"
+    "typescript": "^4.0.3",
+    "uglify-js": "^3.13.5"
   },
   "ava": {
     "extensions": [
@@ -57,6 +76,6 @@
   },
   "dependencies": {
     "debug": "^4.2.0",
-    "haxan": "^0.2.0"
+    "haxan": "^0.2.1"
   }
 }
