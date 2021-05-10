@@ -19,23 +19,23 @@ interface IItem {
 }
 
 // myQueue contains IItem objects
-// This does not create the queue, just define a model to interact with
+// This does not create the queue, just defines a model to interact with
 const myQueue = corinth.defineQueue<IItem>("myQueue");
 
 // Ensure queue exists
-await transcodeQueue.ensure();
+await myQueue.ensure();
 
 // Enqueue an item
-await transcodeQueue.enqueueOne({ id: "abc" });
+await myQueue.enqueueOne({ id: "abc" });
 
 // Get one or more items from the queue
 // Gets one by default
-const result = await transcodeQueue.dequeue();
-const item = result[0];
+const result = await myQueue.dequeue();
+const message = result[0];
 
 // Process your item
-await processItem(item);
+await processItem(message.item);
 
 // Acknowledge success
-await item.ack();
+await message.ack();
 ```
