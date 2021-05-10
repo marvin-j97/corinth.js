@@ -1,4 +1,5 @@
 import ava, { before } from "ava";
+
 import { Corinth } from "../src/corinth";
 import { CorinthError } from "../src/error";
 import { getIp } from "./common";

@@ -1,7 +1,7 @@
 import ava, { after, before } from "ava";
 import { existsSync, unlinkSync } from "fs";
 import { Corinth } from "../src/corinth";
-import { resolveExe } from "../src/release_downloader";
+import { resolveExe } from "./util/release_downloader";
 
 const exeName = resolveExe("corinth");
 const custom = "corinth_download";
