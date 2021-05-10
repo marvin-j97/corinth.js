@@ -31,6 +31,10 @@ export class Corinth {
     return this.ip;
   }
 
+  uri(route: string): string {
+    return `${this.ip}${route}`;
+  }
+
   // getLogger(): LoggerFunction | undefined {
   //   return this.logger;
   // }
@@ -41,7 +45,7 @@ export class Corinth {
   }
 
   async stat(): Promise<ICorinthStats> {
-    const request = haxan<IResult<{ info: ICorinthStats }>>(this.ip);
+    const request = haxan<IResult<{ info: ICorinthStats }>>(this.uri("/"));
     const res = await request.send();
     if (res.ok) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -52,7 +56,7 @@ export class Corinth {
 
   async listQueues(): Promise<IQueueStat[]> {
     const request = haxan<IResult<{ queues: { items: IQueueStat[] } }>>(
-      `${this.ip}/queues`,
+      this.uri("/queues"),
     );
     const res = await request.send();
     if (res.ok) {
