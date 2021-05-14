@@ -899,8 +899,8 @@
     "@types/node" "*"
 
 "@types/semver@^7.3.4":
-  version "7.3.5"
-  resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.3.5.tgz#74deebbbcb1e86634dbf10a5b5e8798626f5a597"
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.3.6.tgz#e9831776f4512a7ba6da53e71c26e5fb67882d63"
 
 "@typescript-eslint/eslint-plugin@^4.4.1":
   version "4.23.0"
