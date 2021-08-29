@@ -1218,6 +1218,10 @@ function _typeof2(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "funct
 
     Corinth.prototype.getIp = function () {
       return this.ip;
+    };
+
+    Corinth.prototype.uri = function (route) {
+      return "" + this.ip + route;
     }; // getLogger(): LoggerFunction | undefined {
     //   return this.logger;
     // }
@@ -1249,7 +1253,7 @@ function _typeof2(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "funct
         return __generator(this, function (_a) {
           switch (_a.label) {
             case 0:
-              request = haxan(this.ip);
+              request = haxan(this.uri("/"));
               return [4
               /*yield*/
               , request.send()];
@@ -1276,7 +1280,7 @@ function _typeof2(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "funct
         return __generator(this, function (_a) {
           switch (_a.label) {
             case 0:
-              request = haxan(this.ip + "/queues");
+              request = haxan(this.uri("/queues"));
               return [4
               /*yield*/
               , request.send()];

@@ -102,6 +102,7 @@ declare class Corinth {
     private ip;
     constructor(ip: string);
     getIp(): string;
+    uri(route: string): string;
     version(): Promise<string>;
     stat(): Promise<ICorinthStats>;
     listQueues(): Promise<IQueueStat[]>;

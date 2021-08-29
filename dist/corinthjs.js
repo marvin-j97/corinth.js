@@ -419,6 +419,9 @@
 	    Corinth.prototype.getIp = function () {
 	        return this.ip;
 	    };
+	    Corinth.prototype.uri = function (route) {
+	        return "" + this.ip + route;
+	    };
 	    // getLogger(): LoggerFunction | undefined {
 	    //   return this.logger;
 	    // }
@@ -441,7 +444,7 @@
 	            return __generator(this, function (_a) {
 	                switch (_a.label) {
 	                    case 0:
-	                        request = haxan(this.ip);
+	                        request = haxan(this.uri("/"));
 	                        return [4 /*yield*/, request.send()];
 	                    case 1:
 	                        res = _a.sent();
@@ -460,7 +463,7 @@
 	            return __generator(this, function (_a) {
 	                switch (_a.label) {
 	                    case 0:
-	                        request = haxan(this.ip + "/queues");
+	                        request = haxan(this.uri("/queues"));
 	                        return [4 /*yield*/, request.send()];
 	                    case 1:
 	                        res = _a.sent();
